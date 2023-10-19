@@ -1,0 +1,323 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Documentación de la API del microservicios usuarios *nuevo cambio*",
+    "description": "Esta API permite registrar nuevos usuarios en el sistema, validando previamente si quien intenta hacer el registro cumple los requisitos. Los usuarios pueden ser propietarios, empleados o clientes.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/v1/user/register_owner": {
+      "post": {
+        "tags": [
+          "user-rest-controller"
+        ],
+        "summary": "Agregar un nuevo propietario",
+        "description": "Permite que un usuario con rol de administrador registre un nuevo usuario con rol de propietario.\nAutenticación\nRequiere un token de acceso (bearer token) en la cabecera de la solicitud para identificar al usuario.\nLos usuarios deben iniciar sesión y obtener un token válido para acceder.\nAutorización\nSolo los usuarios con el rol de \"ADMINISTRADOR\" pueden utilizar este endpoint.\nSe verifica la autorización antes de procesar la solicitud.\n **Ejemplo de Solicitud:**",
+        "operationId": "registerOwner",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Error interno del servidor. Contacte al equipo de soporte."
+          },
+          "403": {
+            "description": "Prohibido. No tiene los permisos adecuados para acceder a esta funcionalidad."
+          },
+          "400": {
+            "description": "Error de validación de datos. Verifique los datos enviados."
+          },
+          "401": {
+            "description": "Acceso no autorizado. No tiene permisos para realizar esta acción."
+          },
+          "409": {
+            "description": "El usuario ya existe."
+          },
+          "200": {
+            "description": "Propietario registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/register_employee": {
+      "post": {
+        "tags": [
+          "user-rest-controller"
+        ],
+        "summary": "Agregar un nuevo empleado",
+        "description": "Permite que un usuario con rol de propietario registre un nuevo usuario con rol de empleado, se valida que el empleado quede asociado al restaurante del propietario.\nAutenticación\nRequiere un token de acceso (bearer token) en la cabecera de la solicitud para identificar al usuario.\nLos usuarios deben iniciar sesión y obtener un token válido para acceder.\nAutorización\nSolo los usuarios con el rol de \"PROPIETARIO\" pueden utilizar este endpoint.\nSe verifica la autorización antes de procesar la solicitud.\n **Ejemplo de Solicitud:**",
+        "operationId": "registerEmployee",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Empleado registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor. Contacte al equipo de soporte."
+          },
+          "403": {
+            "description": "Prohibido. No tiene los permisos adecuados para acceder a esta funcionalidad."
+          },
+          "409": {
+            "description": "El usuario ya existe. Ya hay un usuario registrado con esta información."
+          },
+          "400": {
+            "description": "Error de validación de datos. Verifique los datos enviados."
+          },
+          "401": {
+            "description": "Acceso no autorizado. No tiene permisos para realizar esta acción."
+          },
+          "404": {
+            "description": "Error de validación de datos. Los datos enviados no son correctos."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/user/register_client": {
+      "post": {
+        "tags": [
+          "user-rest-controller"
+        ],
+        "summary": "Agregar un nuevo cliente",
+        "description": "Permite que cualquier usuario, sin que sea obligatorio estar logeado, pueda registrar un usuario con rol cliente.\n\n**Ejemplo de Solicitud:**",
+        "operationId": "registerClient",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Error interno del servidor. Contacte al equipo de soporte."
+          },
+          "403": {
+            "description": "Prohibido. No tiene los permisos adecuados para acceder a esta funcionalidad."
+          },
+          "409": {
+            "description": "El usuario ya existe. Ya hay un usuario registrado con esta información."
+          },
+          "400": {
+            "description": "Error de validación de datos. Verifique los datos enviados."
+          },
+          "401": {
+            "description": "Acceso no autorizado. No tiene permisos para realizar esta acción."
+          },
+          "200": {
+            "description": "Cliente registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error de validación de datos. Los datos enviados no son correctos."
+          }
+        }
+      }
+    },
+    "/api/v1/user/login": {
+      "post": {
+        "tags": [
+          "user-rest-controller"
+        ],
+        "summary": "Iniciar sesión de usuario",
+        "description": "Permite que un usuario inicie sesión en el sistema proporcionando sus credenciales.Autenticación: El endpoint /login utiliza la autenticación de nombre de usuario y contraseña para autenticar a los usuarios.\nAutorización: El endpoint /login utiliza el token JWT para autorizar a los usuarios a acceder a los recursos protegidos.\nEncriptación: Las contraseñas de los usuarios se almacenan encriptadas en la base de datos usando el algoritmo BCrypt.\nControl de acceso: El acceso a la API se limita a los usuarios autorizados usando el token JWT.\nMonitoreo y respuesta a incidentes: El servidor monitorea el tráfico de la API para detectar ataques. Si se detecta un ataque, el servidor responde tomando medidas para mitigar el ataque.+\n **Ejemplo de Solicitud:**",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthenticationRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario autenticado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud incorrecta. Verifique los datos enviados."
+          },
+          "404": {
+            "description": "Usuario no encontrado."
+          },
+          "401": {
+            "description": "Credenciales incorrectas. El usuario no ha sido autenticado."
+          },
+          "500": {
+            "description": "Error interno del servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserRequestDto": {
+        "required": [
+          "email",
+          "lastName",
+          "name",
+          "numberId",
+          "numberPhone",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "numberId": {
+            "type": "string"
+          },
+          "numberPhone": {
+            "maxLength": 13,
+            "minLength": 0,
+            "pattern": "[+]?\\d+([\\\\s-]?\\\\d+)?",
+            "type": "string"
+          },
+          "dateBirth": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "roleId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Este parámetro representa la implementación de la clase UserRequestDto, que contiene los datos del nuevo usuario a registrar."
+      },
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "AuthenticationRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "description": "Este parámetro representa la implementación de la clase AuthenticationRequestDto, la cual tiene dos atributos de tipo string: email y password."
+      },
+      "GrantedAuthority": {
+        "type": "object",
+        "properties": {
+          "authority": {
+            "type": "string"
+          }
+        }
+      },
+      "JwtResponseDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "bearer": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "authorities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GrantedAuthority"
+            }
+          }
+        }
+      }
+    }
+  }
+}
